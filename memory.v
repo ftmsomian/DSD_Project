@@ -5,7 +5,7 @@ module memory(
     input      [15:0]  write_data,
     output reg [15:0]  read_data
 );
-    reg [15:0] mem_array [0:65535];
+    reg [15:0] mem_array [0:255]; // Reduced size for synthesizability
 
     always @(posedge clk) begin
         if (MemWrite)
