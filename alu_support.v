@@ -93,18 +93,19 @@ module Mul8_ShiftAdd_Comb (
     input  [7:0] B,
     output [15:0] P
 );
-    integer i;
-    reg [15:0] result;
+    wire [15:0] partial [7:0];
+    
+    assign partial[0] = B[0] ? {8'b0, A} : 16'b0;
+    assign partial[1] = B[1] ? {7'b0, A, 1'b0} : 16'b0;
+    assign partial[2] = B[2] ? {6'b0, A, 2'b0} : 16'b0;
+    assign partial[3] = B[3] ? {5'b0, A, 3'b0} : 16'b0;
+    assign partial[4] = B[4] ? {4'b0, A, 4'b0} : 16'b0;
+    assign partial[5] = B[5] ? {3'b0, A, 5'b0} : 16'b0;
+    assign partial[6] = B[6] ? {2'b0, A, 6'b0} : 16'b0;
+    assign partial[7] = B[7] ? {1'b0, A, 7'b0} : 16'b0;
 
-    always @(*) begin
-        result = 16'd0;
-        for (i = 0; i < 8; i = i + 1) begin
-            if (B[i])
-                result = result + (A << i);
-        end
-    end
-
-    assign P = result;
+    assign P = partial[0] + partial[1] + partial[2] + partial[3] +
+               partial[4] + partial[5] + partial[6] + partial[7];
 endmodule
 
 module Mul16_Karatsuba_Comb (
@@ -116,7 +117,6 @@ module Mul16_Karatsuba_Comb (
     wire [7:0] YH = Y[15:8], YL = Y[7:0];
 
     wire [15:0] Z0, Z2, Z01;
-
     wire [8:0] sumX = XH + XL;
     wire [8:0] sumY = YH + YL;
 
@@ -132,9 +132,9 @@ module Mul16_Karatsuba_Comb (
         .A(sumX[7:0]), .B(sumY[7:0]), .P(Z01)  
     );
 
-    wire [17:0] Z0_ext  = {2'b00, Z0};
-    wire [17:0] Z2_ext  = {2'b00, Z2};
-    wire [17:0] Z01_ext = {2'b00, Z01};
+    wire [17:0] Z0_ext  = {2'b0, Z0};
+    wire [17:0] Z2_ext  = {2'b0, Z2};
+    wire [17:0] Z01_ext = {2'b0, Z01};
 
     wire [17:0] Z1 = Z01_ext - Z0_ext - Z2_ext;
 
